@@ -20,14 +20,17 @@ fb_client_id = ''
 rep_page = ""
 target_page = ""
 api_endpoint = 'https://graph.facebook.com/v2.11/'
+facebook_url = 'https://www.facebook.com/'
 
 dryrun = True
 
 def postPage(message):
+    
     url = api_endpoint + target_page + '/feed'
     # # #Note - we've got what should be a permenant token here but we might need to extend it every 60 days.
     params = [('message', "REMOVED: " + message), ('access_token', page_access_token)]
     post_id = pycurlutil.pycurlpost(url, params)
+    print(post_id)
     #get post id
     return post_id['id'].split("_")[1]
 
@@ -118,11 +121,11 @@ def main():
                         print("FILTERED!")
                         print(stored_comments.message)
                         print("On post:" + comments['message'] )
-                        if not dryrun:
+                        if "False" == dryrun:
                             stored_comments.has_been_deleted = True
                             stored_comments.save()
                             id = postPage(stored_comments.message)
-                            post_url = api_endpoint + target_page + "/posts/" + id
+                            post_url = "https://www.facebook.com/" + target_page + "/posts/" + id
                             twitterpost.testTweet(stored_comments.message, post_url)
                             stored_comments.has_been_posted = True
                             stored_comments.save()
