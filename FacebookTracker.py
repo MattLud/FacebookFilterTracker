@@ -9,6 +9,7 @@ import time
 from orm import *
 import datetime
 import twitterpost
+import facebookutils
 import pycurlutil
 import os.path
 import configparser
@@ -23,16 +24,6 @@ api_endpoint = 'https://graph.facebook.com/v2.11/'
 facebook_url = 'https://www.facebook.com/'
 
 dryrun = True
-
-def postPage(message):
-    
-    url = api_endpoint + target_page + '/feed'
-    # # #Note - we've got what should be a permenant token here but we might need to extend it every 60 days.
-    params = [('message', "REMOVED: " + message), ('access_token', page_access_token)]
-    post_id = pycurlutil.pycurlpost(url, params)
-    print(post_id)
-    #get post id
-    return post_id['id'].split("_")[1]
 
 def getAccessTokens():
     print(fb_client_secret)
@@ -124,15 +115,12 @@ def main():
                         if "False" == dryrun:
                             stored_comments.has_been_deleted = True
                             stored_comments.save()
-                            id = postPage(stored_comments.message)
+                            id = facebookutils.postPage( "REMOVED: " +stored_comments.message)
                             post_url = "https://www.facebook.com/" + target_page + "/posts/" + id
                             twitterpost.testTweet(stored_comments.message, post_url)
                             stored_comments.has_been_posted = True
+                            stored_comments.has_been_deleted = True
                             stored_comments.save()
-                    else:
-                        stored_comments.has_been_deleted = False
-                        stored_comments.save()
-                    
         time.sleep(300)
 
 
