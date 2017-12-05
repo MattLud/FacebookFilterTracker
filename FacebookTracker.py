@@ -116,7 +116,7 @@ def main():
                         if "False" == dryrun:
                             stored_comments.has_been_deleted = True
                             stored_comments.save()
-                            id = facebookutils.postPage( "REMOVED: " +stored_comments.message)
+                            id = facebookutils.postPage( "REMOVED: " +stored_comments.message, page_access_token, api_endpoint, target_page)
                             post_url = "https://www.facebook.com/" + target_page + "/posts/" + id
                             twitterpost.testTweet(stored_comments.message, post_url)
                             stored_comments.has_been_posted = True
