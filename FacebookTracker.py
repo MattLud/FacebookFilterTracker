@@ -13,6 +13,7 @@ import facebookutils
 import pycurlutil
 import os.path
 import configparser
+import sys
 
 page_access_token = ""
 fb_client_secret = ""
@@ -26,7 +27,7 @@ facebook_url = 'https://www.facebook.com/'
 dryrun = True
 
 def getAccessTokens():
-    print(fb_client_secret)
+    logging.info(fb_client_secret)
     params = [('client_id', fb_client_id ), ('client_secret', fb_client_secret), ('grant_type', 'client_credentials')]
     url = 'https://graph.facebook.com/oauth/access_token'
     parsed_json = pycurlutil.pycurlget(url, params)
@@ -65,7 +66,7 @@ def main():
         )
 
     while True:
-        print("Running Page Filter detection @ ", datetime.datetime.now())
+        logging.info("Running Page Filter detection @ " + str(datetime.datetime.now()))
         access_token = getAccessTokens()
         params = [('fields','posts{comments,id,caption,created_time,message}'), ('access_token', access_token )]
         url = api_endpoint + rep_page
@@ -77,7 +78,7 @@ def main():
             query = Post.select().where(Post.post_id == comments['id'])
             # If so, capture message, ID and time/date   and save to database
             if not query.exists():
-                print("creating post...")
+                logging.info("creating post...")
                 query = Post.create(post_id = comments['id'],created_date=comments['created_time'], message = comments['message'] )
             
             posted_comments = []
@@ -94,7 +95,7 @@ def main():
                         comment_count += 1
                         comment_query = Comment.select().where(Comment.comment_id == comment_data['id'])
                         if not comment_query.exists():
-                            print("Creating comment....")
+                            logging.info("Creating comment....")
                             if comment_data['message'].strip() != "":
                                 Comment.create(post = query, comment_id = comment_data['id'], created_date=comment_data['created_time'], message = comment_data['message'] )
                     posted_comments = posted_comments + comment_block ['data']
@@ -109,9 +110,9 @@ def main():
                         if existing_comments['id'] == stored_comments.comment_id:
                             found = True
                     if not found and stored_comments.message.strip() != "" and not stored_comments.has_been_posted:
-                        print("FILTERED!")
-                        print(stored_comments.message)
-                        print("On post:" + comments['message'] )
+                        logging.info("FILTERED!")
+                        logging.info(stored_comments.message)
+                        logging.info("On post:" + comments['message'] )
                         if "False" == dryrun:
                             stored_comments.has_been_deleted = True
                             stored_comments.save()
@@ -125,4 +126,6 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, filename="FacebookTracker.log", filemode="a+",
+                        format="%(asctime)-15s %(levelname)-8s %(message)s")
     main()
