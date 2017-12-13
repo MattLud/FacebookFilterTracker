@@ -49,7 +49,7 @@ def main():
     popPost = popularPost.message
     if(len(popPost)> 100):
         popPost = popPost[:97]+"..."
-    message += "Most censored post: " + popPost + "  https://facebook.com/: + rep_page + "/posts/" + post.post_id.split("_")[1] + "\n"
+    message += "Most censored post: " + popPost + "  https://facebook.com/: + rep_page + "/posts/" + popularPost.post_id.split("_")[1] + "\n"
     stats_post_id = facebookutils.postPage(message, page_access_token, api_endpoint, target_page)
     post_url = "https://www.facebook.com/" + target_page + "/posts/" + stats_post_id
     twitterpost.testTweet(message, post_url)

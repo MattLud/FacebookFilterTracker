@@ -79,7 +79,10 @@ def main():
             # If so, capture message, ID and time/date   and save to database
             if not query.exists():
                 logging.info("creating post...")
-                query = Post.create(post_id = comments['id'],created_date=comments['created_time'], message = comments['message'] )
+                message = "N/A"
+                if 'message' in comments:
+                    message = comments['message']
+                query = Post.create(post_id = comments['id'],created_date=comments['created_time'], message = message )
             
             posted_comments = []
             if 'comments' in comments:
